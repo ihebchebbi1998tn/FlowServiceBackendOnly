@@ -21,12 +21,12 @@
 			return parentViewModel.serviceOrderIsEditable() &&
 				window.Crm.Service.Settings.ServiceContract.MaintenanceOrderGenerationMode === "JobPerInstallation";
 		});
-		// Include Installation and Installation.Address for Standort display
+		// Include Installation for KagemaStandort (ExtensionValues) display
 		window.Main.ViewModels.GenericListViewModel.call(viewModel, 
 			"CrmService_ServiceOrderTime", 
 			["PosNo"], 
 			["ASC"], 
-			["Installation", "Installation.Address", "Article"]);
+			["Installation", "Article"]);
 		viewModel.infiniteScroll(true);
 		viewModel.accumulatedTotalPrice = window.ko.pureComputed(function () {
 			return viewModel.items().reduce(function (partialSum, item) { return partialSum + item.totalPrice; }, 0);
