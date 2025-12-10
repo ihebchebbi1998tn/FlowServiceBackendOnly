@@ -11,16 +11,19 @@
 	// Override initItems to prioritize checklists for the currently selected job at the top
 	basePrototype.initItems = function (items) {
 		var viewModel = this;
+		
+		// First call base initItems (which sorts by title and itemGroup)
+		var result = baseInitItems.apply(viewModel, arguments);
+		
+		// Now get the current ServiceOrderTime ID from the dispatch
 		var currentServiceOrderTimeId = null;
-
-		// Get the current ServiceOrderTime ID from the dispatch
 		if (viewModel.dispatch && viewModel.dispatch() && viewModel.dispatch().CurrentServiceOrderTimeId) {
 			currentServiceOrderTimeId = viewModel.dispatch().CurrentServiceOrderTimeId();
 		}
 
-		// Sort items BEFORE calling base - put current job's checklists first
-		if (currentServiceOrderTimeId && items && items.length > 0) {
-			items.sort(function (a, b) {
+		// Re-sort AFTER base to put current job's checklists first
+		if (currentServiceOrderTimeId && viewModel.items && viewModel.items()) {
+			var sortedItems = viewModel.items().slice().sort(function (a, b) {
 				var aIsCurrentJob = a.ServiceOrderTimeKey && a.ServiceOrderTimeKey() === currentServiceOrderTimeId;
 				var bIsCurrentJob = b.ServiceOrderTimeKey && b.ServiceOrderTimeKey() === currentServiceOrderTimeId;
 				
@@ -28,10 +31,10 @@
 				if (!aIsCurrentJob && bIsCurrentJob) return 1;
 				return 0; // Keep existing order within groups
 			});
+			viewModel.items(sortedItems);
 		}
 
-		// Now call base with pre-sorted items
-		return baseInitItems.apply(viewModel, arguments);
+		return result;
 	};
 
 	console.log("DispatchDetailsChecklistsTabViewModelExtension loaded successfully");
