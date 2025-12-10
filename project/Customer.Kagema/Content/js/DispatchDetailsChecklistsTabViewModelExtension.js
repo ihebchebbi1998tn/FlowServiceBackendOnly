@@ -18,12 +18,13 @@
 			currentServiceOrderTimeId = viewModel.dispatch().CurrentServiceOrderTimeId();
 		}
 
-		// Call the base initItems first (this does the standard sorting)
+		// Call the base initItems first (this does the standard sorting on items array)
 		var result = baseInitItems.apply(viewModel, arguments);
 
-		// Then re-sort to put current job's checklists at the top
+		// Then re-sort the items array to put current job's checklists at the top
 		if (currentServiceOrderTimeId) {
-			viewModel.items.sort(function (a, b) {
+			// Sort the items array directly (same pattern as base)
+			items.sort(function (a, b) {
 				var aIsCurrentJob = a.ServiceOrderTimeKey && a.ServiceOrderTimeKey() === currentServiceOrderTimeId;
 				var bIsCurrentJob = b.ServiceOrderTimeKey && b.ServiceOrderTimeKey() === currentServiceOrderTimeId;
 				
@@ -31,6 +32,11 @@
 				if (!aIsCurrentJob && bIsCurrentJob) return 1;
 				return 0; // Keep existing order within groups
 			});
+			
+			// Re-apply to viewModel.items if it exists
+			if (viewModel.items && typeof viewModel.items === 'function') {
+				viewModel.items(items);
+			}
 		}
 
 		return result;
